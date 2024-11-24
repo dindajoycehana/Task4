@@ -1,33 +1,37 @@
 <?php
 session_start();
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "registrationdb";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $age = (int) $_POST['age'];
+    $password = trim($_POST['password']);
+    $file = $_FILES['file'];
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $user = $_POST['username'];
-    $email = $_POST['email'];
-    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-    $sql = "INSERT INTO users (username, email, password) VALUES ('$user', '$email', '$pass')";
-
-    if ($conn->query($sql) === TRUE) {
-        $_SESSION['success'] = "Registration successful!";
-        header("Location: index.php");
-        exit();
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+    if (empty($username) || strlen($username) < 5 || strlen($username) > 20) {
+        die('Username tidak valid.');
     }
-}
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die('Email tidak valid.');
+    }
+    if ($age < 12 || $age > 120) {
+        die('Usia tidak valid.');
+    }
+    if (!preg_match('/^(?=.[a-z])(?=.[A-Z]).{8,}$/', $password)) {
+        $errors[] = "Password harus memiliki minimal 8 karakter, termasuk satu huruf besar dan satu huruf kecil.";
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        die('File upload error.');
+    }
+    if ($file['size'] > 2 * 1024 * 1024) {
+        die('Ukuran file maksimal 2MB.');
+    }
+    if (mime_content_type($file['tmp_name']) !== 'text/plain') {
+        die('Hanya file teks (.txt) yang diizinkan.');
+    }
 
-$conn->close();
+    $fileContent = file_get_contents($file['tmp_name']);
+    $fileLines = explode("\n", $fileContent);
+    $_SESSION['formData'] = compact('username', 'email', 'age', 'fileLines');
+    header('Location: result.php');
+}

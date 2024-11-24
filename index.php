@@ -1,7 +1,3 @@
-<?php
-session_start();
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,13 +8,7 @@ session_start();
 </head>
 <body>
     <div class="container">
-        <?php
-        if (isset($_SESSION['success'])) {
-            echo '<div class="alert alert-success">' . $_SESSION['success'] . '</div>';
-            unset($_SESSION['success']);
-        }
-        ?>
-        <form action="process.php" method="post" id="registrationForm">
+        <form action="process.php" method="post" id="registrationForm" enctype="multipart/form-data">
             <h2>Register</h2>
             <div class="form-group">
                 <label for="username">Username</label>

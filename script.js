@@ -1,17 +1,25 @@
-document.getElementById('registrationForm').addEventListener('submit', function(event) {
-    var username = document.getElementById('username').value;
-    var email = document.getElementById('email').value;
-    var password = document.getElementById('password').value;
-    var file = document.getElementById('file').value;
-    var age = document.getElementById('age').value;
-
-    if (file.type!="text/plain"){
-        alert('Type is not match');
-        event.preventDefault();
-    }
-
-    if (file.size >5*1024*1024){
-        alert('File size is too big');
-        event.preventDefault();
-    }
-});
+document
+    .getElementById('registrationForm')
+    .addEventListener('submit', function (event) {
+        const fileInput = document.getElementById('file');
+        const file = fileInput.files[0];
+        const password = document.getElementById('password').value;
+        if (file) {
+            if (file.type !== 'text/plain') {
+                alert('Hanya file teks (.txt) yang diizinkan.');
+                event.preventDefault();
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                // 2MB limit
+                alert('Ukuran file maksimal 2MB.');
+                event.preventDefault();
+            }
+        }
+        const passwordPattern = /^(?=.[a-z])(?=.[A-Z]).{8,}$/;
+        if (!passwordPattern.test(password)) {
+            alert(
+                'Password harus memiliki minimal 8 karakter, termasuk satu huruf besar dan satu huruf kecil.'
+            );
+            event.preventDefault();
+        }
+    });
